@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class User extends CI_Controller {
+class Content extends CI_Controller {
 
 	/**
 	 * Index Page for this controller.
@@ -39,35 +39,23 @@ class User extends CI_Controller {
 		}
 	}
 
-	public function register(){
+	public function add(){
 		$data = $_GET;
-		if((!empty($data['login'])&&(!empty($data['password'])))){
-			$res = $this -> db -> get_where('user',array('mobile' => $data['login']))->result();
-			$len = count($res);
-			if(!empty($res)){
-				echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => $data['login'].'用户已存在')).")";
-			}else{
-				$param = $data;
-				$param['mobile'] = $data['login'];
-				$param['ctime'] = time();
-				unset($param['login']);
-				unset($param['jsonpcallback']);
-				if(empty($param['lat'])){
-					unset($param['lat']);
-				}
-				if(empty($param['lng'])){
-					unset($param['lng']);
-				}
-				$r = $this -> db  -> insert('user',$param);
-				echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 0,'msg' => '注册成功')).")";
-			}
+		if((!empty($data['title'])&&(!empty($data['content'])))){
+			$param = $data;
+			$param['content'] = htmlspecialchars($data['content']);
+			$param['ctime'] = time();
+			unset($param['login']);
+			unset($param['jsonpcallback']);
+			$r = $this -> db  -> insert('content',$param);
+			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 0,'msg' => '发布成功')).")";
 		}
-		if(empty($data['login'])){
-			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => '用户名不能为空')).")";
+		if(empty($data['title'])){
+			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => '标题不能为空')).")";
 
 		}
-		if(empty($data['password'])){
-			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => '密码不能为空')).")";
+		if(empty($data['content'])){
+			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => '内容不能为空')).")";
 
 		}
 	}
