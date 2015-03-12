@@ -11,22 +11,26 @@ File Encoding         : 65001
 Date: 2015-03-06 14:28:36
 */
 
-SET FOREIGN_KEY_CHECKS=0;
+SET NAMES utf8;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for user
+--  Table structure for `user`
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL COMMENT '姓名',
+  `name` varchar(30) DEFAULT NULL COMMENT '姓名',
   `password` varchar(255) NOT NULL COMMENT '密码',
   `ctime` int(10) NOT NULL COMMENT '创建世界',
   `mobile` bigint(11) DEFAULT NULL COMMENT '手机号',
   `lat` varchar(50) DEFAULT '31.22' COMMENT '纬度',
   `lng` varchar(50) DEFAULT '121.48' COMMENT '经度',
+  `uuid` varchar(32) DEFAULT NULL,
+  `platform` varchar(16) DEFAULT NULL,
+  `service_type` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 /*
