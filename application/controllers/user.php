@@ -66,7 +66,8 @@ class User extends CI_Controller {
 					unset($param['platform']);
 				}
 				$r = $this->db->insert('user', $param);
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '注册成功')) . ")";
+				$id = $this -> db -> insert_id();
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '注册成功','user' => array('id' => $id))) . ")";
 			}
 		}
 		if (empty($data['login'])) {
@@ -77,6 +78,12 @@ class User extends CI_Controller {
 			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '密码不能为空')) . ")";
 
 		}
+	}
+
+	public function addSkill(){
+		$data = $_GET;
+		$param['service_type'] = $data['service_type'];
+		$this -> db -> update('user',$param,array('id' => $data['id']));
 	}
 }
 
