@@ -59,6 +59,20 @@ class Content extends CI_Controller {
 
 		}
 	}
+
+	public function detail(){
+		$data = $_GET;
+		if(!empty($data['cid'])){
+			$param['id'] = $data['cid'];
+			$r = $this -> db  -> get_where('content',$param)->result();
+			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 0,'data' => $r[0])).")";exit;
+		}
+		if(empty($data['id'])){
+			echo $_GET['jsonpcallback']."(".json_encode(array('errno' => 1,'msg' => '参数错误')).")";exit;
+
+		}
+		
+	}
 }
 
 /* End of file welcome.php */
