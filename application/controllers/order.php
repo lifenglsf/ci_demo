@@ -2,7 +2,7 @@
 	exit('No direct script access allowed');
 }
 
-class User extends CI_Controller {
+class Order extends CI_Controller {
 
 	/**
 	 * Index Page for this controller.
@@ -27,7 +27,7 @@ class User extends CI_Controller {
 			if (empty($res)) {
 				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名或密码错误')) . ")";
 			} else {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功','data' => $res[0])) . ")";
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功')) . ")";
 			}
 		}
 		if (empty($data['login'])) {
@@ -40,51 +40,27 @@ class User extends CI_Controller {
 		}
 	}
 
-	public function register() {
+	public function add() {
 		$data = $_GET;
-		if ((!empty($data['login']) && (!empty($data['password'])))) {
-			$res = $this->db->get_where('user', array('mobile' => $data['login']))->result();
+			$res = $this->db->get_where('order', array('cid' => $data['cid'],'uid' => $data['uid']))->result();
 			$len = count($res);
 			if (!empty($res)) {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => $data['login'] . '用户已存在')) . ")";
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '您已抢单')) . ")";
 			} else {
 				$param = $data;
-				$param['mobile'] = $data['login'];
+				$param['uid'] = $data['uid'];
+				$param['cid'] = $data['cid'];
 				$param['ctime'] = time();
-				unset($param['login']);
 				unset($param['jsonpcallback']);
-				if (empty($param['lat'])) {
-					unset($param['lat']);
-				}
-				if (empty($param['lng'])) {
-					unset($param['lng']);
-				}
-				if (empty($param['uuid'])) {
-					unset($param['uuid']);
-				}
-				if (empty($param['platform'])) {
-					unset($param['platform']);
-				}
-				$r = $this->db->insert('user', $param);
+				
+				$r = $this->db->insert('order', $param);
 				$id = $this -> db -> insert_id();
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '注册成功','user' => array('id' => $id))) . ")";
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '抢单成功') ). ")";
 			}
-		}
-		if (empty($data['login'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名不能为空')) . ")";
-
-		}
-		if (empty($data['password'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '密码不能为空')) . ")";
-
-		}
+				
 	}
 
-	public function addSkill(){
-		$data = $_GET;
-		$param['service_type'] = $data['service_type'];
-		$this -> db -> update('user',$param,array('id' => $data['id']));
-	}
+	
 }
 
 /* End of file welcome.php */
