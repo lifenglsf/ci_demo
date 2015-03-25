@@ -21,46 +21,49 @@ class Order extends CI_Controller {
 	 */
 	public function index() {
 		$data = $_GET;
-		if ((!empty($data['login']) && (!empty($data['password'])))) {
-			$res = $this->db->get_where('user', array('mobile' => $data['login'], 'password' => $data['password']))->result();
-			$len = count($res);
-			if (empty($res)) {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名或密码错误')) . ")";
-			} else {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功')) . ")";
-			}
+		$res = $this->db->get_where('order', array('cid' => $data['cid']))->result_array();
+		foreach ($res as $key => $value) {
+			$user = $this->db->get_where('user', array('id' => $value['uid']))->result();
+			$res[$key]['user'] = $user;
 		}
-		if (empty($data['login'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名不能为空')) . ")";
-
-		}
-		if (empty($data['password'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '密码不能为空')) . ")";
-
-		}
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res, 'num' => count($res))) . ")";
+		exit;
 	}
 
 	public function add() {
 		$data = $_GET;
-			$res = $this->db->get_where('order', array('cid' => $data['cid'],'uid' => $data['uid']))->result();
-			$len = count($res);
-			if (!empty($res)) {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '您已抢单')) . ")";
-			} else {
-				$param = $data;
-				$param['uid'] = $data['uid'];
-				$param['cid'] = $data['cid'];
-				$param['ctime'] = time();
-				unset($param['jsonpcallback']);
-				
-				$r = $this->db->insert('order', $param);
-				$id = $this -> db -> insert_id();
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '抢单成功') ). ")";
-			}
-				
+		$res = $this->db->get_where('order', array('cid' => $data['cid'], 'uid' => $data['uid']))->result();
+		$len = count($res);
+		if (!empty($res)) {
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '您已抢单')) . ")";
+			exit;
+		} else {
+			$param = $data;
+			$param['uid'] = $data['uid'];
+			$param['cid'] = $data['cid'];
+			$param['ctime'] = time();
+			unset($param['jsonpcallback']);
+
+			$r = $this->db->insert('order', $param);
+			$id = $this->db->insert_id();
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '抢单成功')) . ")";
+			exit;
+		}
+
 	}
 
-	
+	public function edit() {
+		$data = $_GET;
+		$param['cid'] = $data['cid'];
+		$param['uid'] = $data['uid'];
+		$param['id'] = $data['cid'];
+		$this->db->where($param);
+		$r = $this->db->update('order', array('status' => 1));
+		$this->db->where(array('id' => $param['cid']));
+		$this->db->update('content', array('status' => 1));
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => "选择成功")) . ")";exit;
+	}
+
 }
 
 /* End of file welcome.php */
