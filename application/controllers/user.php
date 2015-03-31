@@ -19,6 +19,11 @@ class User extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
+
+	public function user_list() {
+		$res = $this->db->get_where('user', array())->result_array();
+		print_r($res);
+	}
 	public function index() {
 		$data = $_GET;
 		if ((!empty($data['login']) && (!empty($data['password'])))) {
@@ -27,7 +32,7 @@ class User extends CI_Controller {
 			if (empty($res)) {
 				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名或密码错误')) . ")";
 			} else {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功','data' => $res[0])) . ")";
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功', 'data' => $res[0])) . ")";
 			}
 		}
 		if (empty($data['login'])) {
@@ -66,8 +71,8 @@ class User extends CI_Controller {
 					unset($param['platform']);
 				}
 				$r = $this->db->insert('user', $param);
-				$id = $this -> db -> insert_id();
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '注册成功','user' => array('id' => $id))) . ")";
+				$id = $this->db->insert_id();
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '注册成功', 'user' => array('id' => $id))) . ")";
 			}
 		}
 		if (empty($data['login'])) {
@@ -80,10 +85,10 @@ class User extends CI_Controller {
 		}
 	}
 
-	public function addSkill(){
+	public function addSkill() {
 		$data = $_GET;
 		$param['service_type'] = $data['service_type'];
-		$this -> db -> update('user',$param,array('id' => $data['id']));
+		$this->db->update('user', $param, array('id' => $data['id']));
 	}
 }
 

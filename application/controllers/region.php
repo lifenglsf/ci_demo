@@ -21,8 +21,18 @@ class Region extends CI_Controller {
 	 */
 	public function index() {
 		$data = $_GET;
-		$res = $this->db->get_where('region', $data)->result_array();
-		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res)) . ")";
+		unset($data['jsonpcallback']);
+		$res = $this->db->select('id,local_name,lat,lng,parent_id')->where($data)->get('region')->result_array(); //->result_array();
+		$r = array();
+		foreach ($res as $k => $v) {
+			if ($v['parent_id'] != 0) {
+				$r[$v['parent_id']][] = $v;
+			} else {
+				$r[$k] = $v;
+			}
+
+		}
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r)) . ")";
 	}
 
 	public function add() {
