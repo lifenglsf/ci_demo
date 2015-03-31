@@ -21,23 +21,37 @@ class Content extends CI_Controller {
 	 */
 	public function index() {
 		$data = $_GET;
-		if ((!empty($data['login']) && (!empty($data['password'])))) {
-			$res = $this->db->get_where('user', array('mobile' => $data['login'], 'password' => $data['password']))->result();
-			$len = count($res);
-			if (empty($res)) {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名或密码错误')) . ")";
-			} else {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功')) . ")";
+		$param = $_GET;
+		if(empty($param)){
+			$param = array();
+		}
+		unset($param['jsonpcallback']);
+		$res = $this->db->get_where('content', $param)->result_array();
+		foreach($res as $k =>$v){
+			if(empty($v['service_type'])){
+				$service_type = 0;
+			}else{
+				$service_type = $v['service_type'];
+			}
+			switch ($service_type) {
+	
+				case 1:
+					$res[$k]['skill'] = "家电维修";
+					break;
+				case 2:
+					$res[$k]['skill'] = "开锁";
+					break;
+				case 3:
+					$res[$k]['skill'] = "海外代购";
+					break;
+				default:
+					$res[$k]['skill'] = "家电维修";
+					break;
 			}
 		}
-		if (empty($data['login'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名不能为空')) . ")";
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res)) . ")";
+		exit;
 
-		}
-		if (empty($data['password'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '密码不能为空')) . ")";
-
-		}
 	}
 
 	public function add() {
