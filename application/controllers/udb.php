@@ -120,6 +120,56 @@ class Udb extends CI_Controller {
 			}
 		}
 	}
+
+	public function v4() {
+		$this->load->dbforge();
+		$hasField = $this->db->field_exists('uid', 'content');
+		var_dump($hasField);
+		if (!$hasField) {
+			$fields = array(
+				'uid' => array(
+					'type' => 'INT',
+					'length' => 10,
+				),
+			);
+			$r = $this->dbforge->add_column('content', $fields);
+			if ($r) {
+				echo "添加成功";
+			} else {
+				echo "添加失败";
+			}
+		}
+		$hasField = $this->db->field_exists('message', 'order');
+		if (!$hasField) {
+			$fields = array(
+				'message' => array(
+					'type' => 'VARCHAR',
+					'constraint' => 2000,
+				),
+			);
+			$r = $this->dbforge->add_column('order', $fields);
+			if ($r) {
+				echo "添加成功";
+			} else {
+				echo "添加失败";
+			}
+		}
+		$hasField = $this->db->field_exists('price', 'order');
+		if (!$hasField) {
+			$fields = array(
+				'price' => array(
+					'type' => 'varchar',
+					'constraint' => 5,
+				),
+			);
+			$r = $this->dbforge->add_column('order', $fields);
+			if ($r) {
+				echo "添加成功";
+			} else {
+				echo "添加失败";
+			}
+		}
+	}
 	public function index() {
 		$data = $_GET;
 		if ((!empty($data['login']) && (!empty($data['password'])))) {

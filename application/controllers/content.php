@@ -20,21 +20,25 @@ class Content extends CI_Controller {
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
 	public function index() {
-		$data = $_GET;
 		$param = $_GET;
-		if(empty($param)){
+		if (empty($param)) {
 			$param = array();
 		}
 		unset($param['jsonpcallback']);
-		$res = $this->db->get_where('content', $param)->result_array();
-		foreach($res as $k =>$v){
-			if(empty($v['service_type'])){
+		$p = $param;
+		unset($p['uid']);
+		$res = $this->db->get_where('content', $p)->result_array();
+		foreach ($res as $k => $v) {
+			if ($v['uid'] == $param['uid']) {
+				unset($res[$k]); //过滤自己发布的需求
+			}
+			if (empty($v['service_type'])) {
 				$service_type = 0;
-			}else{
+			} else {
 				$service_type = $v['service_type'];
 			}
 			switch ($service_type) {
-	
+
 				case 1:
 					$res[$k]['skill'] = "家电维修";
 					break;
@@ -48,6 +52,33 @@ class Content extends CI_Controller {
 					$res[$k]['skill'] = "家电维修";
 					break;
 			}
+			$o = $this->db->get_where('order', array('cid' => $v['id']))->result();
+			$len = count($o);
+			if (empty($o)) {
+				$res[$k]['is_grap'] = 0;
+			} else {
+				$res[$k]['is_grap'] = 1;
+			}
+			if (!empty($param['uid'])) {
+				$o = $this->db->get_where('order', array('cid' => $v['id'], 'uid' => $param['uid']))->result();
+				$len = count($o);
+				if (empty($o)) {
+					$res[$k]['notchoose'] = 0;
+				} else {
+					$res[$k]['notchoose'] = 1;
+				}
+			}
+
+			/*if (!empty($param['uid'])) {
+		foreach($o as $kk =$vv){
+		if($vv['uid'] == $param["uid"]){
+		$res[$k]['is_choose'] = 1
+		}else{
+		$res[$k]['is_choose'] = 0;
+		}
+		}
+		}*/
+
 		}
 		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res)) . ")";
 		exit;

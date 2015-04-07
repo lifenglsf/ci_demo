@@ -22,11 +22,20 @@ class Order extends CI_Controller {
 	public function index() {
 		$data = $_GET;
 		$res = $this->db->get_where('order', array('cid' => $data['cid']))->result_array();
+		$num = count($res);
+		$permit_choose = 1;
 		foreach ($res as $key => $value) {
 			$user = $this->db->get_where('user', array('id' => $value['uid']))->result();
 			$res[$key]['user'] = $user;
+			if ($value['uid'] == $data['uid']) {
+				$res[$key]['is_choose'] = 1;
+				$permit_choose = 0;
+			} else {
+				$res[$key]['is_choose'] = 0;
+
+			}
 		}
-		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res, 'num' => count($res))) . ")";
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res, 'permit_choose' => $permit_choose, 'num' => $num)) . ")";
 		exit;
 	}
 
