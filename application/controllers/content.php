@@ -29,6 +29,7 @@ class Content extends CI_Controller {
 		unset($p['uid']);
 		$res = $this->db->get_where('content', $p)->result_array();
 		foreach ($res as $k => $v) {
+			
 			if ($v['uid'] == $param['uid']) {
 				unset($res[$k]); //过滤自己发布的需求
 			}
@@ -110,10 +111,33 @@ class Content extends CI_Controller {
 		$data = $_GET;
 		if (!empty($data['cid'])) {
 			$param['id'] = $data['cid'];
-			$r = $this->db->get_where('content', $param)->result();
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0])) . ")";exit;
+			$r = $this->db->get_where('content', $param)->result_array();
+			$city = "";
+			$province = "";
+			$county = "";
+			if(!empty($r)){
+				if(!empty($r[0]['city'])){
+					$cityArr = $this -> db-> get_where('region',array('id' => $r[0]['city']))->result_array();
+					$city = $cityArr[0]['local_name'];
+				}
+				if(!empty($r[0]['province'])){
+					$provinceArr  = $this -> db-> get_where('region',array('id' => $r[0]['province']))->result_array();
+					$province = $provinceArr[0]['local_name'];
+				}
+				if(!empty($r[0]['county'])){
+					$countyArr = $this -> db-> get_where('region',array('id' => $r[0]['county']))->result_array();
+					$county = $countyArr[0]['local_name'];
+				}
+				$r[0]['dis'] = $province.$city.$county;
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0])) . ")";exit;
+
+			}else{
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误')) . ")";exit;
+
+			}
+			
 		}
-		if (empty($data['id'])) {
+		if (empty($data['cid'])) {
 			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误')) . ")";exit;
 
 		}
