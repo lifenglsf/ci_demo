@@ -27,6 +27,11 @@ class Content extends CI_Controller {
 		unset($param['jsonpcallback']);
 		$p = $param;
 		unset($p['uid']);
+		$session_exist = $this -> db -> get_where('sessions',array('sid' => $data['sid'])) -> result();
+		if(empty($session_exist)){
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'is_login'=>0,'data' => array(),'msg' => '请先登录')) . ")";
+			exit;
+		}
 		$res = $this->db->get_where('content', $p)->result_array();
 		foreach ($res as $k => $v) {
 			
@@ -81,13 +86,18 @@ class Content extends CI_Controller {
 		}*/
 
 		}
-		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $res)) . ")";
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'is_login' => 1,'data' => $res,'msg' => '')) . ")";
 		exit;
 
 	}
 
 	public function add() {
 		$data = $_GET;
+		$session_exist = $this -> db -> get_where('sessions',array('sid' => $data['sid'])) -> result();
+		if(empty($session_exist)){
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'data' => array(),'msg' => '请先登录')) . ")";
+			exit;
+		}
 		if ((!empty($data['title']) && (!empty($data['content'])))) {
 			$param = $data;
 			$param['content'] = htmlspecialchars($data['content']);
@@ -95,20 +105,26 @@ class Content extends CI_Controller {
 			unset($param['login']);
 			unset($param['jsonpcallback']);
 			$r = $this->db->insert('content', $param);
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '发布成功')) . ")";
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '发布成功','is_login' => 1)) . ")";
 		}
 		if (empty($data['title'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '标题不能为空')) . ")";
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '标题不能为空','is_login' => 1)) . ")";
 
 		}
 		if (empty($data['content'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '内容不能为空')) . ")";
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '内容不能为空','is_login' => 1)) . ")";
 
 		}
 	}
 
 	public function detail() {
-		$data = $_GET;
+
+		$data = $_GET
+		$session_exist = $this -> db -> get_where('sessions',array('sid' => $data['sess_id'])) -> result();
+		if(empty($session_exist)){
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'data' => array(),'msg' => '请先登录','is_login' => 0)) . ")";
+			exit;
+		}
 		if (!empty($data['cid'])) {
 			$param['id'] = $data['cid'];
 			$r = $this->db->get_where('content', $param)->result_array();
@@ -129,16 +145,16 @@ class Content extends CI_Controller {
 					$county = $countyArr[0]['local_name'];
 				}
 				$r[0]['dis'] = $province.$city.$county;
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0])) . ")";exit;
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0],'msg' => '','is_login' => 1)) . ")";exit;
 
 			}else{
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误')) . ")";exit;
+				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误','data' => array(),'is_login' => 1)) . ")";exit;
 
 			}
 			
 		}
 		if (empty($data['cid'])) {
-			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误')) . ")";exit;
+			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '参数错误','data' => array(),'is_login' => 1)) . ")";exit;
 
 		}
 
