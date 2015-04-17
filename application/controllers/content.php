@@ -60,7 +60,7 @@ class Content extends CI_Controller {
 				$res[$k]['is_grap'] = 1;
 			}
 			if (!empty($param['uid'])) {
-				$o = $this->db->get_where('order', array('cid' => $v['id'], 'uid' => $param['uid']))->result();
+				$o = $this->db->get_where('order', array('cid' => $v['id'], 'uid' => $param['uid'], 'status' => 1))->result();
 				$len = count($o);
 				if (empty($o)) {
 					$res[$k]['notchoose'] = 0;
@@ -111,6 +111,13 @@ class Content extends CI_Controller {
 		if (!empty($data['cid'])) {
 			$param['id'] = $data['cid'];
 			$r = $this->db->get_where('content', $param)->result();
+			$o = $this->db->get_where('order', array('cid' => $param['id'], 'status' => 1))->result();
+			$len = count($o);
+			if (empty($o)) {
+				$r[0]->notchoose = 1;
+			} else {
+				$r[0]->notchoose = 0;
+			}
 			echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0])) . ")";exit;
 		}
 		if (empty($data['id'])) {
