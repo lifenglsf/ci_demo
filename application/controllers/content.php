@@ -132,9 +132,9 @@ class Content extends CI_Controller {
 				$o = $this->db->get_where('order', array('cid' => $param['id'], 'status' => 1))->result();
 				$len = count($o);
 				if (empty($o)) {
-					$r[0]->notchoose = 1;
+					$r[0]['notchoose'] = 1;
 				} else {
-					$r[0]->notchoose = 0;
+					$r[0]['notchoose'] = 0;
 				}
 				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'data' => $r[0])) . ")";exit;
 
