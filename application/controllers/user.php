@@ -26,13 +26,26 @@ class User extends CI_Controller {
 	}
 	public function index() {
 		$data = $_GET;
+		session_start();
+		$sid = session_id();
+		session_destroy();
+		setcookie(session_name(),'',time()-3600);//销毁session
 		if ((!empty($data['login']) && (!empty($data['password'])))) {
 			$res = $this->db->get_where('user', array('mobile' => $data['login'], 'password' => $data['password']))->result();
+			//print_r($res);exit;
 			$len = count($res);
 			if (empty($res)) {
+				
 				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 1, 'msg' => '用户名或密码错误')) . ")";
 			} else {
-				echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功', 'data' => $res[0])) . ")";
+				$session_exist = $this -> db -> get_where('sessions',array('sid' => $data['sid'])) -> result();
+				if(empty($session_exist)){
+
+				}else{
+					$r =$session_data = array('uid' => $res[0]->id,'hostname' => $_SERVER['REMOTE_ADDR'],'timestamp' => time(),'sid' => $sid);
+					$this -> db->insert('sessions',$session_data);
+					echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '登录成功', 'data' => $res[0])) . ")";
+				}
 			}
 		}
 		if (empty($data['login'])) {
@@ -89,6 +102,7 @@ class User extends CI_Controller {
 		$data = $_GET;
 		$param['service_type'] = $data['service_type'];
 		$this->db->update('user', $param, array('id' => $data['id']));
+		echo $_GET['jsonpcallback'] . "(" . json_encode(array('errno' => 0, 'msg' => '成功')) . ")";
 	}
 }
 
